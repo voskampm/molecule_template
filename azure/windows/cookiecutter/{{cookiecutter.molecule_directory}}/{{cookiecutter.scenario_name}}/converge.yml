@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Include tested role
+      include_role:
+        name: "{{ cookiecutter.role_name }}"
