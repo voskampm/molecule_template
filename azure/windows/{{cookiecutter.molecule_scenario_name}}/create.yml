@@ -1,0 +1,125 @@
+---
+{% raw -%}
+
+# Based on: https://github.com/sperreault/molecule-azure-windows-ex/blob/master/molecule/default/create.yml
+
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ not (lookup('env', 'MOLECULE_DEBUG') | bool or molecule_yml.provisioner.log|default(false) | bool) }}"
+  vars:
+    keypair_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
+  tasks:
+    - name: "Create resource group: {{ molecule_yml.azure_resource_group }}"
+      azure_rm_resourcegroup:
+        name: "{{ molecule_yml.azure_resource_group }}"
+        location: "{{ molecule_yml.azure_location }}"
+
+    - name: "Create virtual network {{ molecule_yml.azure_vnet_name }}"
+      azure_rm_virtualnetwork:
+        resource_group: "{{ molecule_yml.azure_resource_group }}"
+        name: "{{ molecule_yml.azure_vnet_name }}"
+        address_prefixes: "10.10.0.0/16"
+
+    # Molecule creates an NSG which allows traffic to molecule_yml.azure_remote_port for everybody. You 
+    # could create an additional NSG here to only allow network traffic from certain IP-addresses.
+
+    - name: "Create subnet {{ molecule_yml.azure_subnet_name }}"
+      azure_rm_subnet:
+        resource_group: "{{ molecule_yml.azure_resource_group }}"
+        name: "{{ molecule_yml.azure_subnet_name }}"
+        address_prefix_cidr: 10.10.1.0/24
+        virtual_network_name: "{{ molecule_yml.azure_vnet_name }}"
+
+    - name: "Create molecule instance(s)"
+      azure_rm_virtualmachine:
+        resource_group: "{{ molecule_yml.azure_resource_group }}"
+        name: "{{ item.name }}"
+        vm_size: "{{ item.az_vm_size | default('Standard_A2') }}"
+        admin_username: "{{ molecule_yml.azure_vm_user_name }}"
+        admin_password: "{{ molecule_yml.azure_vm_user_password }}"
+        public_ip_allocation_method: Dynamic
+        os_type: Windows
+        image:
+          offer: "{{ item.az_image_offer | default('WindowsServer') }}"
+          publisher: "{{ item.az_image_publisher | default('MicrosoftWindowsServer') }}"
+          sku: "{{ item.az_image_sku | default('2016-Datacenter') }}"
+          version: "{{ item.az_image_version | default('latest') }}"
+        open_ports: 
+          - "{{ molecule_yml.azure_remote_port }}"
+          # - 3389  # You could add RDP for troubleshooting
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      async: 7200
+      poll: 0
+
+    - name: Wait for instance(s) creation to complete
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: azure_jobs
+      until: azure_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+
+    # * List available extensions
+    #    az vm extension image list --location WestEurope -o table
+    - name: Create VM extension to enable HTTPS WinRM listener
+      azure_rm_virtualmachineextension:
+        name: winrm-extension
+        resource_group: "{{ molecule_yml.azure_resource_group }}"
+        virtual_machine_name: "{{ item.name }}"
+        publisher: Microsoft.Compute
+        virtual_machine_extension_type: CustomScriptExtension
+        type_handler_version: "1.9"
+        settings: '{"fileUris": ["https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"],"commandToExecute": "powershell -ExecutionPolicy Unrestricted -File ConfigureRemotingForAnsible.ps1 -EnableCredSSP -DisableBasicAuth -Verbose"}'
+        auto_upgrade_minor_version: true
+      ignore_errors: true
+      with_items: "{{ molecule_yml.platforms }}"
+
+    # Mandatory configuration for Molecule to function.
+    # Used https://molecule.readthedocs.io/en/latest/configuration.html?highlight=molecule_instance_config#delegated to configure winrm connections 
+    # in Molecule. This does not yet work without adding the vars below to playbooks like prepare.yml en converge.yml
+    #     vars:
+            # ansible_connection: winrm
+            # ansible_winrm_transport: credssp
+            # ansible_winrm_server_cert_validation: ignore
+    # Even stranger: 'identity_file' must be present to prevent python errors in prepare.yml and converge.yml. 
+    - name: Populate instance config dict
+      set_fact:
+        instance_conf_dict: {
+          'instance': "{{ item.ansible_facts.azure_vm.name }}",
+          'identity_file': "{{ keypair_path }}",
+          'address': "{{ item.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}",
+          'user': "{{ molecule_yml.azure_vm_user_name }}",
+          'password': "{{ molecule_yml.azure_vm_user_name }}",
+          'port': "{{ molecule_yml.azure_remote_port }}",
+          'connection': "winrm",
+          'winrm_transport': "credssp",                     # Other options: ntlm/kerberos
+          'winrm_server_cert_validation': "ignore", }       # Valid options: validate/ignore
+      with_items: "{{ azure_jobs.results }}"
+      register: instance_config_dict
+      when: server.changed | bool
+
+    - name: Contents of var instance_conf_dict (Dict)
+      debug:
+        var: instance_conf_dict
+
+    - name: Convert instance config dict to a list
+      set_fact:
+        instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
+      when: server.changed | bool
+
+    - name: "Dump instance config to file: {{ molecule_instance_config }}"
+      copy:
+        content: "{{ instance_conf | to_json | from_json | to_yaml }}"
+        dest: "{{ molecule_instance_config }}"
+      when: server.changed | bool
+
+    - name: Wait for WINRM
+      wait_for:
+        port: "{{ molecule_yml.azure_remote_port }}"
+        host: "{{ item.address }}"
+        delay: 10
+      with_items: "{{ lookup('file', molecule_instance_config) | from_yaml }}"
+{%- endraw %}
