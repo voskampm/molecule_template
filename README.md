@@ -3,19 +3,21 @@ Cookiecutter templates for molecule
 
 ## Description
 
-[Cookiecutter](https://cookiecutter.readthedocs.io) is a tool that creates scaffolding for new projects from templates. This repo contains templates to create Molecule scenario's
+Molecule used to have it's own template system but that was pre version 3. Starting with version 3 external template systems can be used if the scaffolding created by ```molecule init``` is not enough. This repo contains templates to create specialized Molecule scenario's. The [Cookiecutter](https://cookiecutter.readthedocs.io) tool is used to converts the templates in scaffolding ready to be be used for your project.
 
 ## Usage
+* Create a new Ansible role with the for example the instructions on: https://molecule.readthedocs.io/en/latest/getting-started.html#creating-a-new-role
+* Go to the molecule directory and create a new scenario with:
 
-cookiecutter https://github.com/user/repo-name.git --directory="windows"
+    cookiecutter ~/git/molecule_template/azure/windows
+
+Where '~/git/molecule_template' is the directory where you cloned this repo and azure/windows is the subdirectory with the templates to create Windows VM's in Azure.
 
 ## Molecule links
 * [Use cookiecutter to create scenario's](https://github.com/rocknsm/molecule-cookiecutter-vsphere)
 * [Use cookiecutter to create an Ansible role and configure molecule](https://github.com/retr0h/cookiecutter-molecule)
 
-
 ## Cookiecutter links
 * [Commandline options](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html)
 * [Choice variables](https://cookiecutter.readthedocs.io/en/latest/advanced/choice_variables.html)
 * [Organizing cookiecutters in directories](https://cookiecutter.readthedocs.io/en/1.7.2/advanced/directories.html#organizing-cookiecutters-in-directories-1-7)
-
