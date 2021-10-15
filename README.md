@@ -13,6 +13,20 @@ Molecule used to have it's own template system but that was pre version 3. Start
 
 Where '~/git/molecule_template' is the directory where you cloned this repo and azure/windows is the subdirectory with the templates to create Windows VM's in Azure.
 
+Example:
+
+    ansible-galaxy role init solve_every_problem
+      - Role solve_every_problem was created successfully
+    cd solve_every_problem/
+    mkdir molecule; cd molecule
+    cookiecutter ~/git/molecule_template/azure/windows
+        role_name [test]: solve_every_problem
+        molecule_scenario_name [default]: 
+        azure_location [Westeurope]: 
+        azure_resource_group [molecule_solve_every_problem_default]: 
+    cd ..
+    molecule test
+
 ## Molecule links
 * [Use cookiecutter to create scenario's](https://github.com/rocknsm/molecule-cookiecutter-vsphere)
 * [Use cookiecutter to create an Ansible role and configure molecule](https://github.com/retr0h/cookiecutter-molecule)

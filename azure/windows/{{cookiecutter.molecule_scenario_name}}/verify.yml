@@ -1,0 +1,26 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+#- name: Verify
+#  hosts: all
+#  gather_facts: false
+#  tasks:
+#  - name: Example assertion
+#    assert:
+#      that: true
+
+{%- raw %}
+- name: Verify
+  hosts: all
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+    ansible_user: "{{ molecule_yml.azure_vm_user_name }}"
+    ansible_password: "{{ molecule_yml.azure_vm_user_password }}"
+{%- endraw %}
+
+  tasks:
+    - name: "Include test_{{ cookiecutter.role_name }} role"
+      include_role:
+        name: "test_{{ cookiecutter.role_name }}"
