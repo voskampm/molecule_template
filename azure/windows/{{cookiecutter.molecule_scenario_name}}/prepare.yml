@@ -1,0 +1,19 @@
+---
+{% raw -%}
+
+- name: prepare
+  hosts: all
+
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+    ansible_user: "{{ molecule_yml.azure_vm_user_name }}"
+    ansible_password: "{{ molecule_yml.azure_vm_user_password }}"
+
+  tasks:
+    - name: Replace this task with useful code
+      debug:
+        var: ansible_hostname
+{% endraw -%}
+
