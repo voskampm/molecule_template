@@ -35,3 +35,8 @@ Example:
 * [Commandline options](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html)
 * [Choice variables](https://cookiecutter.readthedocs.io/en/latest/advanced/choice_variables.html)
 * [Organizing cookiecutters in directories](https://cookiecutter.readthedocs.io/en/1.7.2/advanced/directories.html#organizing-cookiecutters-in-directories-1-7)
+
+## ToDo:
+Use https://github.com/cookiecutter/cookiecutter/issues/723#issuecomment-350561930 and maybe /home/michielv/git/molecule_test/azure to be able to create a cookiecutter template that creates a role, the molecule directory and one scenario. Both windows and linux directories are copied and a choice variable determines witch directory is not removed in a posthook. The other is renamed to the molecule_scenario_name. The posthook should als delete the cookiecutter.json file in the molecule directory that allows the creation of a new molecule scenario.
+
+Alternative: A posthook script that cd's to the newly created role/molecule directory and starts a new unattended cookiecutter process to create a Molecule scenario .
