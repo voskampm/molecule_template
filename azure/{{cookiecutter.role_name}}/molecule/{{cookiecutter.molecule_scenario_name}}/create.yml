@@ -32,7 +32,7 @@
         address_prefix_cidr: 10.10.1.0/24
         virtual_network_name: "{{ molecule_yml.azure_vnet_name }}"
 {%- endraw %}
-{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
 {%- raw %}
 
     - name: Create key pair
@@ -64,7 +64,7 @@
       poll: 0
 {%- endraw %}
 {%- endif %}
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 {%- raw %}
 
     - name: "Create molecule instance(s)"
@@ -100,7 +100,7 @@
       retries: 300
       with_items: "{{ server.results }}"
 {%- endraw %}
-{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
 {%- raw %}
 
     # Handy when something goes wong with the VM extension. Uncomment the task below and run molecule create again.
@@ -137,12 +137,13 @@
       when: item.name == 'centos6'
       with_items: "{{ molecule_yml.platforms }}"
 
-    # N.B ssh connecties naar centos6 werken nog steeds niet door na azure_rm_virtualmachineextension : 'no mutual signature algorithm' error. Dat is op te lossen door
-    #     aan de ssh client kant aan te geven dat ssh-rsa gebruikt mag worden. Bijvoorbeeld door in playbooks extra ssh opties mee te geven:
+    # ssh connecties to centos6 are not yet possible, even after running azure_rm_virtualmachineextension. The error is: 'no mutual 
+    # signature algorithm'. That can be solved by changing the configuration of the ssh client by allowing ssh-rsa. For example by
+    # adding ssh options in the playbooks:
     #        ansible_ssh_extra_args: '-o PubkeyAcceptedKeyTypes=+ssh-rsa'
 {%- endraw %}
 {%- endif %}
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 {%- raw %}
 
     # * List available extensions
@@ -180,7 +181,7 @@
           'address': "{{ item.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}",
           'user': "{{ molecule_yml.azure_vm_user_name }}",
 {%- endraw %}
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 {%- raw %}
           'password': "{{ molecule_yml.azure_vm_user_name }}",
           'connection': "winrm",
@@ -209,7 +210,7 @@
         dest: "{{ molecule_instance_config }}"
       when: server.changed | bool
 {%- endraw %}
-{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
 {%- raw %}
 
     - name: Wait for SSH
@@ -222,7 +223,7 @@
 
 {%- endraw %}
 {%- endif %}
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 {%- raw %}
 
     - name: Wait for WINRM
