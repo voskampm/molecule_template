@@ -1,19 +1,18 @@
 ---
-{% raw -%}
 
 - name: prepare
   hosts: all
-
+{%- if cookiecutter.molecule_os_type == 'windows' %}
   vars:
+  {% raw -%}
     ansible_connection: winrm
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
     ansible_user: "{{ molecule_yml.azure_vm_user_name }}"
     ansible_password: "{{ molecule_yml.azure_vm_user_password }}"
-
+  {%- endraw %}
+{%- endif %}
   tasks:
     - name: Replace this task with useful code
       debug:
         var: ansible_hostname
-{% endraw -%}
-
