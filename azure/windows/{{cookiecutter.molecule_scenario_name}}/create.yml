@@ -32,6 +32,38 @@
         address_prefix_cidr: 10.10.1.0/24
         virtual_network_name: "{{ molecule_yml.azure_vnet_name }}"
 {%- endraw %}
+{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- raw %}
+
+    - name: Create key pair
+      user:
+        name: "{{ lookup('env', 'USER') }}"
+        generate_ssh_key: true
+        ssh_key_file: "{{ keypair_path }}"
+      register: key_pair
+
+    - name: Create molecule instance(s)
+      azure_rm_virtualmachine:
+        resource_group: "{{ molecule_yml.azure_resource_group }}"
+        name: "{{ item.name }}"
+        vm_size: "{{ item.az_vm_size | default('Standard_A0') }}"
+        admin_username: "{{ ssh_user }}"
+        public_ip_allocation_method: Dynamic
+        ssh_password_enabled: false
+        ssh_public_keys:
+          - path: "/home/{{ ssh_user }}/.ssh/authorized_keys"
+            key_data: "{{ key_pair.ssh_public_key }}"
+        image:
+          offer: "{{ item.az_image_offer | default('CentOS') }}"
+          publisher: "{{ item.az_image_publisher | default('OpenLogic') }}"
+          sku: "{{ item.az_image_sku | default('7.4') }}"
+          version: "{{ item.az_image_version | default('latest') }}"
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      async: 7200
+      poll: 0
+{%- endraw %}
+{%- endif %}
 {%- if cookiecutter.molecule_os_type == 'windows' %}
 {%- raw %}
 
@@ -94,6 +126,10 @@
             # ansible_winrm_transport: credssp
             # ansible_winrm_server_cert_validation: ignore
     # Even stranger: 'identity_file' must be present to prevent python errors in prepare.yml and converge.yml. 
+{%- endraw %}
+{%- endif %}
+{%- raw %}
+
     - name: Populate instance config dict
       set_fact:
         instance_conf_dict: {
@@ -101,17 +137,20 @@
           'identity_file': "{{ keypair_path }}",
           'address': "{{ item.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}",
           'user': "{{ molecule_yml.azure_vm_user_name }}",
-          'port': "{{ molecule_yml.azure_remote_port }}",
+{%- endraw %}
+{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- raw %}
           'password': "{{ molecule_yml.azure_vm_user_name }}",
           'connection': "winrm",
           'winrm_transport': "credssp",                     # Other options: ntlm/kerberos
-          'winrm_server_cert_validation': "ignore", }       # Valid options: validate/ignore
+          'winrm_server_cert_validation': "ignore",         # Valid options: validate/ignore
+{%- endraw %}
+{%- endif %}
+{%- raw %}
+          'port': "{{ molecule_yml.azure_remote_port }}", }
       with_items: "{{ azure_jobs.results }}"
       register: instance_config_dict
       when: server.changed | bool
-{%- endraw %}
-{%- endif %}
-{%- raw %} 
 
     - name: Contents of var instance_conf_dict (Dict)
       debug:
@@ -128,6 +167,19 @@
         dest: "{{ molecule_instance_config }}"
       when: server.changed | bool
 {%- endraw %}
+{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- raw %}
+
+    - name: Wait for SSH
+      wait_for:
+        port: "{{ ssh_port }}"
+        host: "{{ item.address }}"
+        search_regex: SSH
+        delay: 10
+      with_items: "{{ lookup('file', molecule_instance_config) | from_yaml }}"
+
+{%- endraw %}
+{%- endif %}
 {%- if cookiecutter.molecule_os_type == 'windows' %}
 {%- raw %}
 
