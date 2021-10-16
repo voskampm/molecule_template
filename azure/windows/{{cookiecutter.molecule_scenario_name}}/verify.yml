@@ -9,16 +9,22 @@
 #    assert:
 #      that: true
 
-{%- raw %}
 - name: Verify
   hosts: all
+{%- if cookiecutter.molecule_os_type == 'linux' %}
   vars:
+    ansible_ssh_extra_args: '-o PubkeyAcceptedKeyTypes=+ssh-rsa'  # Centos6 needs +ssh-rsa
+{%- endif %}
+{%- if cookiecutter.molecule_os_type == 'windows' %}
+  vars:
+  {% raw -%}
     ansible_connection: winrm
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
     ansible_user: "{{ molecule_yml.azure_vm_user_name }}"
     ansible_password: "{{ molecule_yml.azure_vm_user_password }}"
-{%- endraw %}
+  {%- endraw %}
+{%- endif %}
 
   tasks:
     - name: "Include test_{{ cookiecutter.role_name }} role"
