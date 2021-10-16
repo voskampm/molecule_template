@@ -11,6 +11,10 @@
 
 - name: Verify
   hosts: all
+{%- if cookiecutter.molecule_os_type == 'linux' %}
+  vars:
+    ansible_ssh_extra_args: '-o PubkeyAcceptedKeyTypes=+ssh-rsa'  # Centos6 needs +ssh-rsa
+{%- endif %}
 {%- if cookiecutter.molecule_os_type == 'windows' %}
   vars:
   {% raw -%}
