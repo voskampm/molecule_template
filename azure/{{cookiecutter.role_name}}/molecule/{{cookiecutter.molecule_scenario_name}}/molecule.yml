@@ -8,7 +8,7 @@ dependency:
 driver:
   name: azure
 platforms:
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
   - name: winserv2012
     az_image_offer: WindowsServer
     az_image_publisher: MicrosoftWindowsServer
@@ -28,7 +28,7 @@ platforms:
     az_image_version: latest
     az_vm_size: 'Standard_A2'
 {%- endif %}
-{%- if cookiecutter.molecule_os_type == 'linux' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
   - name: centos6
     az_image_offer: CentOS
     az_image_publisher: OpenLogic
@@ -60,7 +60,10 @@ azure_networkinterface_name: nic_{{ cookiecutter.azure_resource_group }}
 azure_vm_user_name: "${AZ_VM_USER_NAME:-molecule}"
 azure_vm_user_password: "${AZ_VM_USER_PASSWORD:-B=eEVy@vL]sP^wq[U}"
 
-{%- if cookiecutter.molecule_os_type == 'windows' %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
+azure_remote_port: 22
+{%- endif %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 # molecule_azure will create an NSG by default and  open azure_remote_port in the NSG and on the local firewall.
 # WinRM https port is 5986
 azure_remote_port: 5986
