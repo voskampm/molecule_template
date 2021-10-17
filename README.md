@@ -11,7 +11,7 @@ The [molecule_azure](https://github.com/ansible-community/molecule-azure) driver
 
 ### DANGER ZONE
 
-The cookiecutter template in the Azure directory will create will create an Ansible role that contains a Molecule directory for developing and testing the role. Running Molecule will create a resource group in Azure and will also remove that resource group, AND EVERYTHING IN IT, when done. MAKE ABSOLUTELY SURE YOU KNOW WHAT YOU ARE DOING AND DO NOT ACCIDENTALLY DESTROY A RESOURCE GROUP THAT IS USED OUTSIDE MOLECULE.
+The cookiecutter template in the Azure directory will create an Ansible role that contains a Molecule directory for developing and testing the role. Running Molecule will create a resource group in Azure and will also remove that resource group, AND EVERYTHING IN IT, when done. MAKE ABSOLUTELY SURE YOU KNOW WHAT YOU ARE DOING AND DO NOT ACCIDENTALLY DESTROY A RESOURCE GROUP THAT IS USED OUTSIDE MOLECULE.
 
 To prevent mistakes you could create a dedicated Azure subscription for Molecule (and other tools for automated testing)
 
