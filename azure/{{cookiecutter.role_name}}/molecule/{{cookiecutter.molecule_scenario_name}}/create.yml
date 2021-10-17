@@ -47,17 +47,20 @@
         resource_group: "{{ molecule_yml.azure_resource_group }}"
         name: "{{ item.name }}"
         vm_size: "{{ item.az_vm_size | default('Standard_A0') }}"
-        admin_username: "{{ ssh_user }}"
+        admin_username: "{{ molecule_yml.azure_vm_user_name }}"
         public_ip_allocation_method: Dynamic
+        os_type: Linux
         ssh_password_enabled: false
         ssh_public_keys:
-          - path: "/home/{{ ssh_user }}/.ssh/authorized_keys"
+          - path: "/home/{{ molecule_yml.azure_vm_user_name }}/.ssh/authorized_keys"
             key_data: "{{ key_pair.ssh_public_key }}"
         image:
           offer: "{{ item.az_image_offer | default('CentOS') }}"
           publisher: "{{ item.az_image_publisher | default('OpenLogic') }}"
           sku: "{{ item.az_image_sku | default('7.4') }}"
           version: "{{ item.az_image_version | default('latest') }}"
+ #       open_ports: 
+ #         - "{{ molecule_yml.azure_remote_port }}"
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       async: 7200
@@ -81,9 +84,9 @@
           publisher: "{{ item.az_image_publisher | default('MicrosoftWindowsServer') }}"
           sku: "{{ item.az_image_sku | default('2016-Datacenter') }}"
           version: "{{ item.az_image_version | default('latest') }}"
-        open_ports: 
-          - "{{ molecule_yml.azure_remote_port }}"
-          # - 3389  # You could add RDP for troubleshooting
+#        open_ports: 
+#          - "{{ molecule_yml.azure_remote_port }}"
+#          # - 3389  # You could add RDP for troubleshooting
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       async: 7200
@@ -215,7 +218,7 @@
 
     - name: Wait for SSH
       wait_for:
-        port: "{{ ssh_port }}"
+        port: "{{ molecule_yml.azure_remote_port }}"
         host: "{{ item.address }}"
         search_regex: SSH
         delay: 10

@@ -1,5 +1,5 @@
 {
-    "role_name": "test",
+     "role_name": "solve_everything",
     "molecule_scenario_name": "default",
     "molecule_scenario_os_type": ["linux", "windows"],
     "azure_location": "Westeurope",
