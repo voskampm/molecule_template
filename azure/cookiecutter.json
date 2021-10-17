@@ -1,0 +1,7 @@
+{
+     "role_name": "solve_everything",
+    "molecule_scenario_name": "default",
+    "molecule_scenario_os_type": ["linux", "windows"],
+    "azure_location": "Westeurope",
+    "azure_resource_group": "molecule_{{ cookiecutter.role_name }}_{{ cookiecutter.molecule_scenario_name }}"
+}

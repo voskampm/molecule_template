@@ -1,4 +1,5 @@
 ---
+
 dependency:
   name: galaxy
   # ERROR    Computed fully qualified role name of mtail does not follow current galaxy requirements.
@@ -7,12 +8,43 @@ dependency:
 driver:
   name: azure
 platforms:
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
+  - name: winserv2012
+    az_image_offer: WindowsServer
+    az_image_publisher: MicrosoftWindowsServer
+    az_image_sku: '2012-R2-Datacenter'
+    az_image_version: latest
+    az_vm_size: 'Standard_A2'
+  - name: winserv2016
+    az_image_offer: windowsserverdotnet
+    az_image_publisher: MicrosoftWindowsServer
+    az_image_sku: 'ws2016-dotnetcore'
+    az_image_version: latest
+    az_vm_size: 'Standard_A2'
   - name: winserv2019
     az_image_offer: WindowsServer
     az_image_publisher: MicrosoftWindowsServer
     az_image_sku: '2019-Datacenter-smalldisk'
     az_image_version: latest
     az_vm_size: 'Standard_A2'
+{%- endif %}
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
+  - name: centos6
+    az_image_offer: CentOS
+    az_image_publisher: OpenLogic
+    az_image_sku: '6.10'
+    az_image_version: latest
+  - name: centos7
+    az_image_offer: CentOS
+    az_image_publisher: OpenLogic
+    az_image_sku: '7_9'
+    az_image_version: latest
+  - name: centos8
+    az_image_offer: CentOS
+    az_image_publisher: OpenLogic
+    az_image_sku: '8_4'
+    az_image_version: latest
+{%- endif %}
 
 provisioner:
   name: ansible
@@ -28,6 +60,11 @@ azure_networkinterface_name: nic_{{ cookiecutter.azure_resource_group }}
 azure_vm_user_name: "${AZ_VM_USER_NAME:-molecule}"
 azure_vm_user_password: "${AZ_VM_USER_PASSWORD:-B=eEVy@vL]sP^wq[U}"
 
+{%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
+azure_remote_port: 22
+{%- endif %}
+{%- if cookiecutter.molecule_scenario_os_type == 'windows' %}
 # molecule_azure will create an NSG by default and  open azure_remote_port in the NSG and on the local firewall.
 # WinRM https port is 5986
 azure_remote_port: 5986
+{%- endif %}

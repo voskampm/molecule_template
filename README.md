@@ -5,7 +5,22 @@ Cookiecutter templates for molecule
 
 Molecule used to have it's own template system but that was pre version 3. Starting with version 3 external template systems can be used if the scaffolding created by ```molecule init``` is not enough. This repo contains templates to create specialized Molecule scenario's. The [Cookiecutter](https://cookiecutter.readthedocs.io) tool is used to converts the templates in scaffolding ready to be be used for your project.
 
+## DANGER ZONE
+
+This cookiecutter template will create a resource group in Azure and will also remove that resource group, AND EVERYTHING IN IT, when done. MAKE ABSOLUTELY SURE YOU KNOW WHAT YOU ARE DOING AND DO NOT ACCIDENTALLY DESTROY A RESOURCE GROUP THAT IS USED OUTSIDE MOLECULE.
+
+To prevent mistakes you could create a dedicated subscription for Molecule (and other tools for automated testing)
+
+Also make sure, for financial reasons, that all resource groups created by Molecule are destroyed when you are done. 
+
+## Prepare your developer machine
+
+* Create Azure credentails. See: https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html#authenticating-with-azure
+* Install molecule_azure
+* Install cookiecutter
+
 ## Usage
+
 * Create a new Ansible role with the for example the instructions on: https://molecule.readthedocs.io/en/latest/getting-started.html#creating-a-new-role
 * Go to the molecule directory and create a new scenario with:
 
@@ -15,15 +30,22 @@ Where '~/git/molecule_template' is the directory where you cloned this repo and 
 
 Example:
 
-    ansible-galaxy role init solve_every_problem
-      - Role solve_every_problem was created successfully
-    cd solve_every_problem/
-    mkdir molecule; cd molecule
-    cookiecutter ~/git/molecule_template/azure/windows
-        role_name [test]: solve_every_problem
+    cookiecutter ~/git/molecule_template/azure
+        role_name [test]: solve_everything 
         molecule_scenario_name [default]: 
+        Select molecule_scenario_os_type:
+        1 - linux
+        2 - windows
+        Choose from 1, 2 [1]: 
         azure_location [Westeurope]: 
-        azure_resource_group [molecule_solve_every_problem_default]: 
+        azure_resource_group [molecule_solve_everything_default]: 
+    cd solve_every_problem/molecule
+
+    cookiecutter ~/git/molecule_template/azure/\{\{cookiecutter.role_name\}\}/molecule/
+        role_name [test]: solve_every_problem
+        molecule_scenario_name [default]: win
+        azure_location [Westeurope]: 
+        azure_resource_group [molecule_solve_every_problem_win]: 
     cd ..
     molecule test
 
@@ -35,8 +57,5 @@ Example:
 * [Commandline options](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html)
 * [Choice variables](https://cookiecutter.readthedocs.io/en/latest/advanced/choice_variables.html)
 * [Organizing cookiecutters in directories](https://cookiecutter.readthedocs.io/en/1.7.2/advanced/directories.html#organizing-cookiecutters-in-directories-1-7)
+* https://github.com/cookiecutter/cookiecutter/issues/723#issuecomment-350561930
 
-## ToDo:
-Use https://github.com/cookiecutter/cookiecutter/issues/723#issuecomment-350561930 and maybe /home/michielv/git/molecule_test/azure to be able to create a cookiecutter template that creates a role, the molecule directory and one scenario. Both windows and linux directories are copied and a choice variable determines witch directory is not removed in a posthook. The other is renamed to the molecule_scenario_name. The posthook should als delete the cookiecutter.json file in the molecule directory that allows the creation of a new molecule scenario.
-
-Alternative: A posthook script that cd's to the newly created role/molecule directory and starts a new unattended cookiecutter process to create a Molecule scenario .
