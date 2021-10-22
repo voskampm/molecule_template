@@ -11,7 +11,7 @@ The [molecule_azure](https://github.com/ansible-community/molecule-azure) driver
 
 ### DANGER ZONE
 
-The cookiecutter template in the Azure directory will create will create an Ansible role that contains a Molecule directory for developing and testing the role. Running Molecule will create a resource group in Azure and will also remove that resource group, AND EVERYTHING IN IT, when done. MAKE ABSOLUTELY SURE YOU KNOW WHAT YOU ARE DOING AND DO NOT ACCIDENTALLY DESTROY A RESOURCE GROUP THAT IS USED OUTSIDE MOLECULE.
+The cookiecutter template in the Azure directory will create an Ansible role that contains a Molecule directory for developing and testing the role. Running Molecule will create a resource group in Azure and will also remove that resource group, AND EVERYTHING IN IT, when done. MAKE ABSOLUTELY SURE YOU KNOW WHAT YOU ARE DOING AND DO NOT ACCIDENTALLY DESTROY A RESOURCE GROUP THAT IS USED OUTSIDE MOLECULE.
 
 To prevent mistakes you could create a dedicated Azure subscription for Molecule (and other tools for automated testing)
 
@@ -34,11 +34,15 @@ Example usage:
 
 * cd to the directory where you want to create your role
 * Create a Python virtual env with Ansible, Azure roles, molecule and molecule_azure
+```
     python3 -m venv venv
     source venv/bin/activate
     pip install --upgrade pip
     pip install --upgrade ansible[azure]==2.9.13 --use-feature=2020-resolver molecule[lint]==3.4.0 molecule-azure cookiecutter
+```
 
+* Create the scaffolding for the new role
+```
     cookiecutter ~/git/molecule_template/azure
         role_name [solve_everything]: 
         molecule_scenario_name [default]: 
@@ -48,7 +52,7 @@ Example usage:
         Choose from 1, 2 [1]: 
         azure_location [Westeurope]: 
         azure_resource_group [molecule_solve_everything_default]: 
-
+```
 At this stage you can ```cd``` into the newly created project directory and run:
 
     molecule create   
@@ -62,7 +66,7 @@ To destroy the VM's create by Molecule you do:
     molecule destroy
 
 If you want to create an additional Molecule scenario:
-
+```
     cd solve_everything/molecule
     cookiecutter ~/git/molecule_template/azure/\{\{cookiecutter.role_name\}\}/molecule/
         role_name [solve_everything]:
@@ -74,6 +78,8 @@ If you want to create an additional Molecule scenario:
         azure_location [Westeurope]: 
         azure_resource_group [molecule_solve_everything_win]: 
     cd ..
+    molecule create --scenario-name win
+```
 
 ## Molecule links
 * [Use cookiecutter to create scenario's](https://github.com/rocknsm/molecule-cookiecutter-vsphere)
