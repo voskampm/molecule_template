@@ -1,6 +1,8 @@
 # molecule_template
 [Cookiecutter](https://cookiecutter.readthedocs.io) templates for [Ansible](https://docs.ansible.com/) roles that use [Molecule](https://molecule.readthedocs.io/) 
 
+Version: 0.1.1
+
 ## Description
 
 Molecule used to have it's own template system but that was pre version 3. Starting with version 3 external template systems can be used if the scaffolding created by ```molecule init``` is not enough. This repo contains templates to create specialized Molecule scenario's. The [Cookiecutter](https://cookiecutter.readthedocs.io) tool is used to converts the templates in scaffolding ready to be be used for your project.
