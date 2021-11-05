@@ -58,7 +58,7 @@ azure_subnet_name: vsw_{{ cookiecutter.azure_resource_group }}
 azure_networkinterface_name: nic_{{ cookiecutter.azure_resource_group }}
 
 azure_vm_user_name: "${AZ_VM_USER_NAME:-molecule}"
-azure_vm_user_password: "${AZ_VM_USER_PASSWORD:-B=eEVy@vL]sP^wq[U}"
+azure_vm_user_password: "${AZ_VM_USER_PASSWORD:-FR(P^#ERKhds1$26!}"
 
 {%- if cookiecutter.molecule_scenario_os_type == 'linux' %}
 azure_remote_port: 22
