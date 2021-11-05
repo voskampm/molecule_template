@@ -2,11 +2,22 @@
 {%- raw %}
 - name: Destroy
   hosts: localhost
+  vars:
+    # This playbook should only destroy resource groups created by Molecule. The name of those rg's should start with molecule_"
+    resource_group_regexp: "^molecule"
   connection: local
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   tasks:
-    - name: "Destroy resource group: {{ molecule_yml.azure_resource_group }} and all associated resources"
+    # Extra safety precautions 
+    - name: "Make sure the name of our Azure resource group matches {{ resource_group_regexp }}"
+      ansible.builtin.assert:
+        that:
+          - molecule_yml.azure_resource_group is defined
+          - molecule_yml.azure_resource_group is match(resource_group_regexp)
+        fail_msg: "This playbook can only delete Azure resource groups that match regexp: {{ resource_group_regexp }}"
+
+    - name: "Destroy Azure resource group: {{ molecule_yml.azure_resource_group }} and all associated resources"
       azure_rm_resourcegroup:
         name: "{{ molecule_yml.azure_resource_group }}"
         state: absent
