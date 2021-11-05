@@ -3,20 +3,13 @@
 - name: Destroy
   hosts: localhost
   vars:
-    # This playbook should only destroy resource groups created by Molecule. The name of those rg's should start with {{ molecule_yml.azure_resource_group_prefix }}"
-    resource_group_regexp: "^{{ molecule_yml.azure_resource_group_prefix }}"
+    # This playbook should only destroy resource groups created by Molecule. The name of those rg's should start with molecule_"
+    resource_group_regexp: "^molecule"
   connection: local
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   tasks:
     # Extra safety precautions 
-    - name: Make sure the molecule_yml.azure_resource_group_prefix variable is defined
-      ansible.builtin.assert:
-        that:
-          - molecule_yml.azure_resource_group_prefix is defined
-          - molecule_yml.azure_resource_group_prefix is string
-        fail_msg: "Make sure the molecule_yml.azure_resource_group_prefix variable is defined"
-
     - name: "Make sure the name of our Azure resource group matches {{ resource_group_regexp }}"
       ansible.builtin.assert:
         that:

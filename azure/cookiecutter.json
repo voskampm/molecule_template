@@ -3,6 +3,5 @@
     "molecule_scenario_name": "default",
     "molecule_scenario_os_type": ["linux", "windows"],
     "azure_location": "Westeurope",
-    "azure_resource_group_prefix": "molecule_",
-    "azure_resource_group": "{{ cookiecutter.azure_resource_group_prefix }}{{ cookiecutter.role_name }}_{{ cookiecutter.molecule_scenario_name }}"    
+    "azure_resource_group": "molecule_{{ cookiecutter.role_name }}_{{ cookiecutter.molecule_scenario_name }}"
 }

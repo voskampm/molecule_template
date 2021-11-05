@@ -52,7 +52,6 @@ verifier:
   name: ansible
 
 azure_location: {{ cookiecutter.azure_location }}
-azure_resource_group_prefix:  {{ cookiecutter.azure_resource_group_prefix }}
 azure_resource_group: {{ cookiecutter.azure_resource_group }}
 azure_vnet_name: vnw_{{ cookiecutter.azure_resource_group }}
 azure_subnet_name: vsw_{{ cookiecutter.azure_resource_group }}
