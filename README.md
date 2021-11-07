@@ -1,7 +1,7 @@
 # molecule_template
 [Cookiecutter](https://cookiecutter.readthedocs.io) templates for [Ansible](https://docs.ansible.com/) roles that use [Molecule](https://molecule.readthedocs.io/) 
 
-Version: 0.1.1
+Version: 0.1.2
 
 # Description
 
