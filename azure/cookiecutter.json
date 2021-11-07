@@ -1,5 +1,7 @@
 {
-     "role_name": "solve_everything",
+    "role_name": "solve_everything",
+    "role_author": "voskampm",
+    "role_namespace": "community",
     "molecule_scenario_name": "default",
     "molecule_scenario_os_type": ["linux", "windows"],
     "azure_location": "Westeurope",
