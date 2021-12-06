@@ -54,6 +54,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip wheel==0.30.0
 pip install -r ~/git/molecule_template/azure/requirements_ansible_2.9.13.txt
+pip install requests-credssp pywinrm
 ansible-galaxy collection install azure.azcollection
 ```
 
@@ -70,6 +71,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip wheel
 pip install -r ~/git/molecule_template/azure/requirements_ansible_2.11.6.txt
+pip install requests-credssp pywinrm
 ansible-galaxy collection install azure.azcollection
 ```
 requirements_ansible_2.11.6.txt was created with:
