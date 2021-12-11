@@ -1,5 +1,5 @@
 ---
-# tasks file for {{ cookiecutter.role_name }}
+# tasks file for test_{{ cookiecutter.role_name }}
 
 - name: Replace this task with useful code
   assert:
